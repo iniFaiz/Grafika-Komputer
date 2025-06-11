@@ -3,6 +3,8 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import math
 
+
+#note to self: jangan run aplikasi jika caps lock masih nyala soalnya inputnya gak bisa
 pos_x = 0.0
 pos_y = 2.0
 pos_z = 0.0
