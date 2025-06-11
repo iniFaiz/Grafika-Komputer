@@ -50,10 +50,8 @@ box_ceiling = 20.0
 
 texture_id_floor = 0 
 
-# --- New global flags for toggles ---
 multisampling_enabled = True
 anisotropic_filtering_enabled = True
-# --- End new global flags ---
 
 initial_ball_pos_x = 0.0
 initial_ball_pos_y = 2.0
@@ -77,9 +75,9 @@ def cross_product(u, v):
 
 def update_anisotropic_filtering_setting():
     global anisotropic_filtering_enabled, texture_id_floor
-    if texture_id_floor == 0: # Texture not yet created or invalid
+    if texture_id_floor == 0:
         if anisotropic_filtering_enabled:
-             print("Cannot apply anisotropic filtering: Texture not ready.")
+             print("No Ingfo Anisotropic Filtering.")
         return
 
     glBindTexture(GL_TEXTURE_2D, texture_id_floor)
@@ -91,25 +89,24 @@ def update_anisotropic_filtering_setting():
             
             if anisotropic_filtering_enabled:
                 max_anisotropy_val = glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT)
-                # glGetFloatv might return a list/tuple in some PyOpenGL versions
                 if isinstance(max_anisotropy_val, (list, tuple)):
                     max_anisotropy_val = max_anisotropy_val[0]
                 
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy_val)
                 print(f"Anisotropic filtering: ON (Max: {max_anisotropy_val})")
             else:
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0) # Value of 1.0 effectively disables it
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0)
                 print("Anisotropic filtering: OFF (Level 1.0)")
         except GLError as e:
-            print(f"Error setting anisotropic filtering: {e}. Constants might not be defined if extension is present but not fully loaded by PyOpenGL's core.")
+            print(f"Error setting anisotropic filtering.")
         except NameError:
-             print("Anisotropic filtering constants (e.g., GL_TEXTURE_MAX_ANISOTROPY_EXT) not found. Ensure PyOpenGL has loaded the extension.")
+             print("Anisotropic filtering constants.")
     else:
-        if anisotropic_filtering_enabled: # Only warn if trying to enable on unsupported system
-            print("Anisotropic filtering (GL_EXT_texture_filter_anisotropic) not supported.")
+        if anisotropic_filtering_enabled:
+            print("Anisotropic filtering On.")
         else:
-            print("Anisotropic filtering not supported, remains OFF.")
-    glBindTexture(GL_TEXTURE_2D, 0) # Unbind texture
+            print("Anisotropic filtering Off.")
+    glBindTexture(GL_TEXTURE_2D, 0)
 
 def create_checkerboard_texture():
     global texture_id_floor
@@ -119,9 +116,9 @@ def create_checkerboard_texture():
     for y in range(tex_height):
         for x in range(tex_width):
             if (x // 128) % 2 == (y // 128) % 2:
-                texture_data.extend([255, 255, 255])  # Putih
+                texture_data.extend([255, 255, 255])    #Putih
             else:
-                texture_data.extend([0, 0, 0])        # Hitam
+                texture_data.extend([0, 0, 0])  #Hitam
     texture_data_bytes = bytes(texture_data)
 
     texture_id_floor = glGenTextures(1)
@@ -131,11 +128,9 @@ def create_checkerboard_texture():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
 
-    # Anisotropic setting will be applied by update_anisotropic_filtering_setting() after texture creation
-
     gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, tex_width, tex_height, 
                       GL_RGB, GL_UNSIGNED_BYTE, texture_data_bytes)
-    glBindTexture(GL_TEXTURE_2D, 0) # Unbind
+    glBindTexture(GL_TEXTURE_2D, 0)
 
 def draw_floor():
     glEnable(GL_TEXTURE_2D)
@@ -146,16 +141,16 @@ def draw_floor():
     texture_repeats = 25.0
 
     glBegin(GL_QUADS)
-    # Bottom-left
+    #Kiri bawah
     glTexCoord2f(0.0, 0.0)
     glVertex3f(-box_limit, -sphere_radius_val, -box_limit)
-    # Bottom-right
+    #Kanan bawah
     glTexCoord2f(texture_repeats, 0.0)
     glVertex3f(box_limit, -sphere_radius_val, -box_limit)
-    # Top-right
+    #Kanan atas
     glTexCoord2f(texture_repeats, texture_repeats)
     glVertex3f(box_limit, -sphere_radius_val, box_limit)
-    # Top-left
+    #Kiri atas
     glTexCoord2f(0.0, texture_repeats)
     glVertex3f(-box_limit, -sphere_radius_val, box_limit)
     glEnd()
@@ -163,7 +158,7 @@ def draw_floor():
     glDisable(GL_TEXTURE_2D)
 
 def init():
-    global multisampling_enabled # Ensure global is used
+    global multisampling_enabled
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
     glEnable(GL_LIGHT0)
@@ -173,7 +168,7 @@ def init():
     glClearColor(0.1, 0.1, 0.1, 1.0)
     
     create_checkerboard_texture()
-    update_anisotropic_filtering_setting() # Apply initial anisotropic setting
+    update_anisotropic_filtering_setting()
 
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
     
@@ -202,7 +197,7 @@ def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
 
 def draw_hud():
     global win_w, win_h, is_hud_input_mode, hud_input_strings, hud_input_current_field, hud_prompt_message
-    global multisampling_enabled, anisotropic_filtering_enabled # Add new globals
+    global multisampling_enabled, anisotropic_filtering_enabled
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
     glLoadIdentity()
@@ -344,7 +339,7 @@ def keyboard(key, x_mouse, y_mouse):
     global pos_x, pos_y, pos_z, vel_x, vel_y, vel_z, spin, spin_speed, rot_x_ball, rot_z_ball
     global is_aiming_throw
     global is_hud_input_mode, hud_input_strings, hud_input_current_field, throw_start_ball_pos_x, throw_start_ball_pos_y, throw_start_ball_pos_z
-    global multisampling_enabled, anisotropic_filtering_enabled # Add new globals
+    global multisampling_enabled, anisotropic_filtering_enabled
 
 
     if is_hud_input_mode:
@@ -455,7 +450,7 @@ def keyboard(key, x_mouse, y_mouse):
             is_hud_input_mode = False
             is_aiming_throw = False
             print("Mode input HUD untuk lempar dibatalkan.")
-    elif key == b'm': # Toggle Multisampling
+    elif key == b'm': #Toggle Multisampling
         multisampling_enabled = not multisampling_enabled
         if multisampling_enabled:
             glEnable(GL_MULTISAMPLE)
@@ -463,7 +458,7 @@ def keyboard(key, x_mouse, y_mouse):
         else:
             glDisable(GL_MULTISAMPLE)
             print("Multisampling: OFF")
-    elif key == b'n': # Toggle Anisotropic Filtering
+    elif key == b'n': #Toggle Anisotropic Filtering
         anisotropic_filtering_enabled = not anisotropic_filtering_enabled
         update_anisotropic_filtering_setting()
     elif key == b'\x1b':
